@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión - Nayare</title>
+
+    <!-- Cargar el SDK de Google -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- Incluir Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- Estilos adicionales -->
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+        #google-signin-btn {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+        }
+        .g_id_signin {
+            width: 100% !important;
+            max-width: 300px;
+        }
+        img {
+            border-radius: 50%;
+            margin-top: 1rem;
+            width: 100px;
+        }
+        .btn-back {
+            margin-top: 1.5rem;
+            display: block;
+            color: #fff;
+            text-decoration: none;
+        }
+        .btn-back:hover {
+            text-decoration: underline;
+        }
+    </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Recuperar los datos del usuario desde localStorage
+        const user = JSON.parse(localStorage.getItem('user'));
+
+        if (user) {
+            // Mostrar los datos del usuario en el HTML
+            const userDetailsDiv = document.getElementById('user-details');
+            if (userDetailsDiv) {
+                userDetailsDiv.innerHTML = `
+                    <h2>${user.given_name} ${user.family_name}</h2>
+                    <p>Email: ${user.email}</p>
+                    <img src="${user.picture}" alt="${user.name}" width="100">
+                `;
+            }
+        } else {
+            // Si no hay datos de usuario, redirigir al login
+            window.location.href = 'signin.html';
+        }
+    });
+</script>
+
+    <script>
+        // Función para manejar la respuesta del inicio de sesión
+        function handleCredentialResponse(response) {
+            const userInfo = jwt_decode(response.credential);
+
+            // Guardar los datos del usuario en localStorage
+            localStorage.setItem('user', JSON.stringify(userInfo));
+
+            // Redirigir al usuario a la página principal
+            window.location.href = 'index.html';
+        }
+
+        // Configurar Google One Tap al cargar la página
+        window.onload = function() {
+            google.accounts.id.initialize({
+                client_id: "965337034941-esfa7ea8gpkduv5pl3edkklk6n00rq84.apps.googleusercontent.com",
+                callback: handleCredentialResponse
+            });
+            google.accounts.id.renderButton(
+                document.getElementById("google-signin-btn"),
+                { theme: "outline", size: "large", width: "300" }
+            );
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">Iniciar sesión con Google</h1>
+        <div id="google-signin-btn"></div>
+        <a href="index.html" class="btn-back">← Volver al inicio</a>
+    </div>
+
+    <!-- Librería jwt-decode para decodificar el token -->
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+
+    <!-- Bootstrap JavaScript y dependencias -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

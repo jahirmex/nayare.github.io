@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Index - Nayare</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+
+  <!-- Cargar el SDK de Google -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+
+
+  <!-- Icono pagina -->
+  <link href="assets/img/logod.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Nunito:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="assets/css/main.css" rel="stylesheet">
+  
+  <script>
+  
+    // Leer los datos del usuario desde localStorage
+    const user = JSON.parse(localStorage.getItem('user'));
+  
+    // Verificar si hay datos de usuario disponibles
+    if (user) {
+        // Personalizar el contenido del sitio según el usuario
+        document.querySelector('.btn-getstarted').style.display = 'none'; // Oculta el botón de inicio de sesión
+        const userInfoHTML = `
+            <div class="user-info">
+                <img src="${user.picture}" alt="Foto de perfil" style="width: 40px; border-radius: 50%;">
+                <span>Bienvenido, ${user.name}</span>
+            </div>
+        `;
+        document.getElementById('header').insertAdjacentHTML('beforeend', userInfoHTML);
+    }
+  </script>
+
+<script>
+  // Función para manejar la respuesta del inicio de sesión
+  function handleCredentialResponse(response) {
+      const userInfo = jwt_decode(response.credential);
+
+      // Guardar los datos del usuario en localStorage
+      localStorage.setItem("user", JSON.stringify(userInfo));
+
+      // Actualizar la UI con los datos del usuario
+      updateUI(userInfo);
+  }
+
+  // Función para actualizar la interfaz de usuario
+  function updateUI(user) {
+      if (user) {
+          document.getElementById("header-title").textContent = "Sesión iniciada";
+          document.getElementById("user-info").innerHTML = `
+              <h3>Bienvenido, ${user.name}</h3>
+              <p>Email: ${user.email}</p>
+              <img src="${user.picture}" alt="Foto de perfil" style="border-radius: 50%; width: 100px;">
+          `;
+          document.getElementById("google-signin-btn").style.display = "none";
+      }
+  }
+
+  // Verificar el estado de inicio de sesión al cargar la página
+  function checkLoginStatus() {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (user) {
+          updateUI(user);
+      } else {
+          // Inicializar Google Sign-In si no hay usuario en localStorage
+          google.accounts.id.initialize({
+              client_id: "965337034941-esfa7ea8gpkduv5pl3edkklk6n00rq84.apps.googleusercontent.com",
+              callback: handleCredentialResponse,
+          });
+          google.accounts.id.renderButton(
+              document.getElementById("google-signin-btn"),
+              { theme: "outline", size: "large" }
+          );
+      }
+  }
+
+  // Ejecutar la verificación de estado al cargar la página
+  window.onload = checkLoginStatus;
+</script>
+
+
+
+  <!-- =======================================================
+ 
+  ======================================================== -->
+</head>
+
+<body class="index-page">
+
+  <header id="header" class="header d-flex align-items-center fixed-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+
+      <a href="index.html" class="logo d-flex align-items-center me-auto">
+        <img src="assets/img/logodd.png" alt="">
+        <h1 class="sitename">Nayare</h1>
+      </a>
+
+      <nav id="navmenu" class="navmenu">
+        <ul>
+          <li><a href="index.html#hero" class="active">Home</a></li>
+          <li><a href="index.html#about">Nosotros</a></li>
+          <li><a href="index.html#features">Guia</a></li>
+          <li><a href="index.html#services">Servicios</a></li>
+          <li><a href="index.html#contact">Buscar</a></li>
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+      <!-- Botón para iniciar sesión -->
+      <div id="login-container">
+        <a class="btn-getstarted" id="login-btn" href="javascript:void(0)" onclick="startGoogleLogin()">Iniciar Sesión</a>
+        <div id="user-info" class="d-flex align-items-center" style="display: none;">
+          <img id="user-image" src="" alt="User Image" class="rounded-circle" style="width: 40px; height: 40px; margin-right: 10px;">
+          <span id="user-name"></span>
+        </div>
+      </div>
+      <style>
+        #user-info {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        
+        #user-info img {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          margin-left: 20px; /* Agrega espacio entre #user-info y los elementos previos */
+        }
+        
+        #user-info span {
+          color: hsl(0, 0%, 0%);
+          font-size: 16px;
+          font-weight: 500;
+        }
+        
+        #logout-btn {
+          background-color: hsl(200, 66%, 39%);
+          color: #ffffff;
+          border: none;
+          padding: 5px 10px;
+          border-radius: 5px;
+          font-size: 14px;
+          cursor: pointer;
+          transition: background-color 0.3s;
+        }
+        
+        #logout-btn:hover {
+          background-color: hsl(219, 70%, 39%);
+        }
+        </style>
+
+    </div>
+  </header>
+
+  <!-- Cargar el SDK de Google -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+
+  <script>
+    function startGoogleLogin() {
+      google.accounts.id.initialize({
+        client_id: "965337034941-esfa7ea8gpkduv5pl3edkklk6n00rq84.apps.googleusercontent.com",
+        callback: handleCredentialResponse
+      });
+      google.accounts.id.prompt(); // Mostrar la ventana de inicio de sesión
+    }
+
+    function handleCredentialResponse(response) {
+      const userInfo = jwt_decode(response.credential);
+
+      // Guardar los datos del usuario en localStorage
+      localStorage.setItem('user', JSON.stringify(userInfo));
+
+      // Actualizar el banner con los datos del usuario
+      updateUserInfo(userInfo);
+    }
+
+    function updateUserInfo(user) {
+      // Mostrar el contenedor del usuario y ocultar el botón de inicio de sesión
+      document.getElementById('login-btn').style.display = 'none';
+      const userInfoContainer = document.getElementById('user-info');
+      userInfoContainer.style.display = 'flex';
+
+      // Mostrar datos del usuario
+      document.getElementById('user-name').textContent = user.name;
+      document.getElementById('user-image').src = user.picture;
+    }
+
+    // Verificar si ya hay una sesión activa al cargar la página
+    window.onload = function() {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user) {
+        updateUserInfo(user);
+      }
+    };
+  </script>
+
+</body>
+
+  <!-- Scripts para actualizar el contenido del usuario -->
+<script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const userInfoContainer = document.getElementById('user-info');
+        const loginButton = document.querySelector('.btn-getstarted');
+        
+        if (user) {
+            // Mostrar la información del usuario
+            userInfoContainer.innerHTML = `
+                <div class="user-info">
+                    <img src="${user.picture}" alt="${user.name}" class="user-avatar">
+                    <span>Hola, ${user.given_name}</span>
+                    <a href="signout.html" class="btn btn-danger btn-sm ms-3">Cerrar sesión</a>
+                </div>
+            `;
+
+            // Ocultar el botón de inicio de sesión si el usuario está autenticado
+            loginButton.style.display = 'none';
+        } else {
+            // Si el usuario no está autenticado, mostrar el botón de inicio de sesión
+            loginButton.style.display = 'inline-block';
+        }
+    });
+</script>
+
+<style>
+    /* Estilos adicionales */
+    #user-info {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        color: #fff;
+    }
+
+    .user-info img {
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+    }
+
+    .user-info span {
+        margin-right: 10px;
+    }
+
+    .btn-getstarted {
+        margin-left: 20px;
+    }
+</style>
+
+  <main class="main">
+
+    <!-- Sección Principal -->
+    <section id="hero" class="hero section">
+      <div class="hero-bg">
+        <video src="assets/img/backtur.mp4" autoplay muted loop playsinline>
+          Tu navegador no soporta la reproducción de videos.
+      </video>
+      </div>
+      <div class="container text-center">
+        <div class="d-flex flex-column justify-content-center align-items-center">
+          <h1 data-aos="fade-up">Bienvenido a <span>Nayare</span></h1>
+          <p data-aos="fade-up" data-aos-delay="100">Descubre destinos, vive experiencias, siente Nayare<br></p>
+          <div class="d-flex" data-aos="fade-up" data-aos-delay="200">
+            <a href="#about" class="btn-get-started">Comenzar</a>
+            <a href="https://youtu.be/P6Oz626qERs?si=zIC1aPQVSFazRyAu" class="glightbox btn-watch-video d-flex align-items-center"><i class="bi bi-play-circle"></i><span>Ver Video</span></a>
+          </div>
+          <img src="assets/img/3.png" class="img-fluid hero-img" alt="" data-aos="zoom-out" data-aos-delay="300">
+        </div>
+      </div>
+
+    </section><!-- /Sección Principal -->
+
+    <!-- Featured Services Section -->
+    <section id="featured-services" class="featured-services section light-background">
+
+      <div class="container">
+
+        <div class="row gy-4">
+
+          <div class="col-xl-4 col-lg-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="service-item d-flex">
+              <div class="icon flex-shrink-0"><i class="bi bi-briefcase"></i></div>
+              <div>
+                <h4 class="title"><a href="#" class="stretched-link">Arma tu viaje Seguro</a></h4>
+                <p class="description">Tu información en nuestra pagina es segura, consulta tus destinos favoritos aquí</p>
+              </div>
+            </div>
+          </div>
+          <!-- End Service Item -->
+
+          <div class="col-xl-4 col-lg-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="service-item d-flex">
+              <div class="icon flex-shrink-0"><i class="bi bi-card-checklist"></i></div>
+              <div>
+                <h4 class="title"><a href="#" class="stretched-link">Facil de Usar</a></h4>
+                <p class="description">Accede a datos climatologicos y Noticias locales facilmente</p>
+              </div>
+            </div>
+          </div><!-- End Service Item -->
+
+          <div class="col-xl-4 col-lg-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="service-item d-flex">
+              <div class="icon flex-shrink-0"><i class="bi bi-bar-chart"></i></div>
+              <div>
+                <h4 class="title"><a href="#" class="stretched-link">Sitio web interactivo</a></h4>
+                <p class="description">No te preocupes por los procedimientos tediosos, nostros te lo facilitamos</p>
+              </div>
+            </div>
+          </div><!-- End Service Item -->
+
+        </div>
+
+      </div>
+
+    </section><!-- /Featured Services Section -->
+
+    <!-- Quienes Somos -->
+    <section id="about" class="about section">
+
+      <div class="container">
+
+        <div class="row gy-4">
+
+          <div class="col-lg-6 content" data-aos="fade-up" data-aos-delay="100">
+            <p class="who-we-are">Quienes somos</p>
+            <h3>Explora, descubre y vive la magia con Nayare</h3>
+            <p class="fst-italic">
+              Nayare es una plataforma web diseñada para turistas y viajeros que integra funcionalidades clave para planificar y disfrutar de sus visitas a destinos turísticos. 
+            </p>
+            <ul>
+              <li><i class="bi bi-check-circle"></i> <span>Sin imprevistos y totalmente gratis.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Sorprendete con nuestras recomedaciones.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Supera tus espectativas.</span></li>
+            </ul>
+            <a id="google-signin-btn" class="read-more" role="button">
+              <span>Regístrate</span>
+              <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
+
+          <div class="col-lg-6 about-images" data-aos="fade-up" data-aos-delay="200">
+            <div class="row gy-4">
+              <div class="col-lg-6">
+                <img src="assets/img/aurora.png" class="img-fluid" alt="">
+              </div>
+              <div class="col-lg-6">
+                <div class="row gy-4">
+                  <div class="col-lg-12">
+                    <img src="assets/img/forest.png" class="img-fluid" alt="">
+                  </div>
+                  <div class="col-lg-12">
+                    <img src="assets/img/cancun.png" class="img-fluid" alt="">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section><!-- /Quienes Somos -->
+
+    <!-- Seccion de Clientes -->
+    <section id="clients" class="clients section">
+
+      <div class="container" data-aos="fade-up">
+
+        <div class="row gy-4">
+
+          <div class="col-xl-2 col-md-3 col-6 client-logo">
+            <img src="assets/img/clients/client-1.png" class="img-fluid" alt="">
+          </div><!-- End Client Item -->
+
+          <div class="col-xl-2 col-md-3 col-6 client-logo">
+            <img src="assets/img/clients/client-2.png" class="img-fluid" alt="">
+          </div><!-- End Client Item -->
+
+          <div class="col-xl-2 col-md-3 col-6 client-logo">
+            <img src="assets/img/clients/client-3.png" class="img-fluid" alt="">
+          </div><!-- End Client Item -->
+
+          <div class="col-xl-2 col-md-3 col-6 client-logo">
+            <img src="assets/img/clients/client-4.png" class="img-fluid" alt="">
+          </div><!-- End Client Item -->
+
+          <div class="col-xl-2 col-md-3 col-6 client-logo">
+            <img src="assets/img/clients/client-5.png" class="img-fluid" alt="">
+          </div><!-- End Client Item -->
+
+          <div class="col-xl-2 col-md-3 col-6 client-logo">
+            <img src="assets/img/clients/client-6.png" class="img-fluid" alt="">
+          </div><!-- End Client Item -->
+
+        </div>
+
+      </div>
+
+    </section><!-- /Clients Section -->
+
+    <!-- Como se usa seccion -->
+    <section id="features" class="features section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Aprende a Usar Nayare</h2>
+        <p>Nayare es una plataforma que ofrece facilidad para encontrar el lugar ideal para vacacionar de una manera interactiva y gratuita</p>
+      </div><!-- End Section Title -->
+
+      <div class="container">
+        <div class="row justify-content-between">
+
+          <div class="col-lg-5 d-flex align-items-center">
+
+            <ul class="nav nav-tabs" data-aos="fade-up" data-aos-delay="100">
+              <li class="nav-item">
+                <a class="nav-link active show" data-bs-toggle="tab" data-bs-target="#features-tab-1">
+                  <i class="bi bi-binoculars"></i>
+                  <div>
+                    <h4 class="d-none d-lg-block">Mapa interactivo</h4>
+                    <p>
+                      Con el mapa interactivo hemos recabado lugares fascinantes para inspirarte y puedad elegir el lugar de tus sueños para tus vacaciones.
+                    </p>
+                  </div>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" data-bs-target="#features-tab-2">
+                  <i class="bi bi-box-seam"></i>
+                  <div>
+                    <h4 class="d-none d-lg-block">Acceso a el clima</h4>
+                    <p>
+                      Con nuestra plataforma puedes consultar el clima actual de tu destino antes de reservar, te ayudamos
+                      a prevenir ante cualquier imprevisto.
+                    </p>
+                  </div>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" data-bs-target="#features-tab-3">
+                  <i class="bi bi-brightness-high"></i>
+                  <div>
+                    <h4 class="d-none d-lg-block">Inicia sesión</h4>
+                    <p>
+                      Registra tu cuenta de Google para recibir información reelevnate sobre noticias internacionales.
+                    </p>
+                  </div>
+                </a>
+              </li>
+            </ul><!-- End Tab Nav -->
+
+          </div>
+
+          <div class="col-lg-6">
+
+            <div class="tab-content" data-aos="fade-up" data-aos-delay="200">
+
+              <div class="tab-pane fade active show" id="features-tab-1">
+                <img src="assets/img/turismweb.jpg" alt="" class="img-fluid">
+              </div><!-- End Tab Content Item -->
+
+              <div class="tab-pane fade" id="features-tab-2">
+                <img src="assets/img/tabs-2.jpg" alt="" class="img-fluid">
+              </div><!-- End Tab Content Item -->
+
+              <div class="tab-pane fade" id="features-tab-3">
+                <img src="assets/img/tabs-3.jpg" alt="" class="img-fluid">
+              </div><!-- End Tab Content Item -->
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section><!-- /Como se usa Section -->
+
+    <!-- Features Details Section -->
+    <section id="features-details" class="features-details section">
+
+      <div class="container">
+
+
+          <div class="row gy-4 justify-content-between features-item">
+
+            <div class="col-lg-5 d-flex align-items-center order-2 order-lg-1" data-aos="fade-up" data-aos-delay="100">
+  
+              <div class="content">
+                <h3>Descubre los destinos turisticos mas populares de el mundo</h3>
+                <p>
+                  Con nuestra plataforma interactiva, ahora es mas sencillo decidir tu destino.
+                </p>
+                <ul>
+                  <li><i class="bi bi-easel flex-shrink-0"></i> Mapa interactivo y fácil de utilizar.</li>
+                  <li><i class="bi bi-patch-check flex-shrink-0"></i> Momentos Inolvidables te esperan.</li>
+                  <li><i class="bi bi-brightness-high flex-shrink-0"></i> Mereces unas vacaciones, descubre tu destino ideal.</li>
+                </ul>
+                <p></p>
+                <a href="trip.html" class="btn more-btn">Vamos</a>
+              </div>
+  
+            </div>
+  
+            <div class="col-lg-6 order-1 order-lg-2" data-aos="fade-up" data-aos-delay="200">
+              <img src="assets/img/enjoyit.png" class="img-fluid" alt="">
+            </div>
+  
+
+            <div class="row gy-4 justify-content-between features-item">
+
+              <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
+                <img src="assets/img/clima.png" class="img-fluid" alt="">
+              </div>
+    
+              <div class="col-lg-5 d-flex align-items-center" data-aos="fade-up" data-aos-delay="200">
+                <div class="content">
+                  <h3>Mapa Interactivo</h3>
+                  <p>
+                    Verificar las condiciones climáticas de un lugar antes de hacer una reserva de hotel es crucial para garantizar una estancia agradable y sin sorpresas.
+                  </p>
+                  <a href="mapa.html" class="btn more-btn">Interactuar</a>
+                </div>
+              </div>
+              
+          </div><!-- Features Item -->
+
+        </div><!-- Features Item -->
+
+      </div>
+
+    </section><!-- /Features Details Section -->
+
+    <!-- Faq Section -->
+    <section id="faq" class="faq section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Preguntas frecuentes</h2>
+      </div><!-- End Section Title -->
+
+      <div class="container">
+
+        <div class="row justify-content-center">
+
+          <div class="col-lg-10" data-aos="fade-up" data-aos-delay="100">
+
+            <div class="faq-container">
+
+              <div class="faq-item faq-active">
+                <h3>Cual es la función de Nayare?</h3>
+                <div class="faq-content">
+                  <p>Nayare tiene la función de ser una pagina interactiva para los usuarios mostrando de una manera interactiva un recorrido virtual por los mejores lugares para vacacionar y el clima.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div><!-- End Faq item-->
+
+              <div class="faq-item">
+                <h3>Es un sitio web confiable?</h3>
+                <div class="faq-content">
+                  <p>Si, Nayare utiliza Apis confiables de StoryMap y OpenWeatherMap.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div><!-- End Faq item-->
+
+              <div class="faq-item">
+                <h3>Cuanto necesito pagar por usar este sito web?</h3>
+                <div class="faq-content">
+                  <p>Nada, Nayare es un sitio web completamente gratuito.</p>
+                </div>
+                <i class="faq-toggle bi bi-chevron-right"></i>
+              </div><!-- End Faq item-->
+
+            </div>
+
+          </div><!-- End Faq Column-->
+
+        </div>
+
+      </div>
+
+    </section><!-- /Faq Section -->
+
+    <!-- Contact Section -->
+<section id="contact" class="contact section">
+  <!-- Section Title -->
+  <div class="container section-title" data-aos="fade-up">
+    <h2>Buscar Destino</h2>
+    <p>Encuentra ubicaciones en el mapa ingresando el nombre del lugar.</p>
+  </div><!-- End Section Title -->
+
+  <!-- Google Maps Section -->
+  <div id="map-container">
+    <div id="input-container">
+      <label for="nombre">Nombre de la ubicación</label>
+      <input type="text" id="nombre" placeholder="Ingresa el nombre de la ubicación">
+      <button onclick="buscarUbicacion()">Buscar</button>
+    </div>
+    <div id="map"></div>
+  </div>
+</section><!-- /Contact Section -->
+
+<style>
+  /* Estilos del mapa */
+  #map-container {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    max-width: 800px;
+    margin: 0 auto;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  #map {
+    width: 100%;
+    height: 100%;
+  }
+
+  #input-container {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 300px;
+    z-index: 10;
+  }
+
+  #input-container label {
+    display: block;
+    font-size: 14px;
+    margin: 8px 0 4px;
+    color: #333;
+  }
+
+  #input-container input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  #input-container button {
+    width: 100%;
+    padding: 8px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  #input-container button:hover {
+    background-color: #0056b3;
+  }
+</style>
+
+<script>
+  let map;
+  let geocoder;
+  let marker;
+
+  function initMap() {
+    // Inicializa el mapa con una ubicación predeterminada
+    map = new google.maps.Map(document.getElementById("map"), {
+      center: { lat: 20.6668, lng: -103.3918 }, // Guadalajara, Jalisco, México
+      zoom: 8,
+    });
+
+    geocoder = new google.maps.Geocoder(); // Inicializa el geocoder
+  }
+
+  function buscarUbicacion() {
+    const nombre = document.getElementById("nombre").value;
+
+    if (nombre.trim() === "") {
+      alert("Por favor, ingrese un nombre de ubicación.");
+      return;
+    }
+
+    // Usa el geocoder para buscar la ubicación
+    geocoder.geocode({ address: nombre }, function (results, status) {
+      if (status === "OK") {
+        const location = results[0].geometry.location;
+
+        // Centra el mapa en la ubicación encontrada
+        map.setCenter(location);
+        map.setZoom(15);
+
+        // Coloca un marcador en la ubicación
+        if (marker) {
+          marker.setMap(null);
+        }
+
+        marker = new google.maps.Marker({
+          position: location,
+          map: map,
+          title: nombre,
+        });
+      } else {
+        alert("No se encontró la ubicación: " + status);
+      }
+    });
+  }
+</script>
+
+<!-- Carga de la API de Google Maps -->
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBqKDeUDSB1KyEMLNCZrExJoLWs3R7AJDA&callback=initMap"></script>
+
+  </main>
+
+  <footer id="footer" class="footer position-relative light-background">
+
+    <div class="container footer-top">
+      <div class="row gy-4">
+        <div class="col-lg-4 col-md-6 footer-about">
+          <a href="index.html" class="logo d-flex align-items-center">
+            <span class="sitename">Nayare</span>
+          </a>
+          <div class="footer-contact pt-3">
+            <p>Desarollado por Jahir</p>
+            <p>Santiago Ixcuintla, Nayarit</p>
+            <p class="mt-3"><strong>Phone:</strong> <span>+52 323 121 98 02</span></p>
+            <p><strong>Email:</strong> <span>garciajahirmex@gmail.com</span></p>
+          </div>
+          <div class="social-links d-flex mt-4">
+            <a href=""><i class="bi bi-twitter-x"></i></a>
+            <a href=""><i class="bi bi-facebook"></i></a>
+            <a href=""><i class="bi bi-instagram"></i></a>
+            <a href=""><i class="bi bi-linkedin"></i></a>
+          </div>
+        </div>
+
+        <div class="col-lg-2 col-md-3 footer-links">
+          <h4>Useful Links</h4>
+          <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Nosotros</a></li>
+            <li><a href="#">Guia</a></li>
+            <li><a href="#">Servicios</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-2 col-md-3 footer-links">
+          <h4>Our Services</h4>
+          <ul>
+            <li><a href="#">Web Design</a></li>
+            <li><a href="#">Web Development</a></li>
+            <li><a href="#">Product Management</a></li>
+            <li><a href="#">Marketing</a></li>
+            <li><a href="#">Graphic Design</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-4 col-md-12 footer-newsletter">
+          <h4>Our Newsletter</h4>
+          <p>Subscribete para recibir información relevante!</p>
+          <form action="forms/newsletter.php" method="post" class="php-email-form">
+            <div class="newsletter-form"><input type="email" name="email"><input type="submit" value="Subscribe"></div>
+            <div class="loading">Loading</div>
+            <div class="error-message"></div>
+            <div class="sent-message">Your subscription request has been sent. Thank you!</div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+
+    
+
+  </footer>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+
+  <!-- Main JS File -->
+  <script src="assets/js/main.js"></script>
+
+  <!-- Scripts de Google API y otros scripts necesarios -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+
+ <!-- Librería jwt-decode para decodificar el token -->
+ <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+
+ <script>
+  document.addEventListener('DOMContentLoaded', function() {
+      // Recuperar los datos del usuario desde localStorage
+      const user = JSON.parse(localStorage.getItem('user'));
+
+      if (user) {
+          // Mostrar los datos del usuario en el HTML
+          const userDetailsDiv = document.getElementById('user-details');
+          userDetailsDiv.innerHTML = `
+              <h2>${user.given_name} ${user.family_name}</h2>
+              <p>Email: ${user.email}</p>
+              <img src="${user.picture}" alt="${user.name}" width="100">
+          `;
+      } else {
+          // Si no hay datos de usuario, redirigir al login
+          window.location.href = 'signin.html';
+      }
+
+      // Manejar el cierre de sesión
+      const logoutBtn = document.getElementById('logout-btn');
+      logoutBtn.addEventListener('click', function() {
+          localStorage.removeItem('user'); // Eliminar los datos del usuario
+          window.location.href = 'signin.html'; // Redirigir al inicio de sesión
+      });
+  });
+</script>
+
+</body>
+
+</html>

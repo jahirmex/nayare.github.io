@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta del Clima</title>
+
+    <!-- Cargar Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- Cargar Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1f1f1f;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-top: 20px;
+            color: #fff;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
+            font-size: 2em;
+        }
+
+        /* Estilo para el input y el botón */
+        .input-group {
+            max-width: 500px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .input-group input {
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #444;
+        }
+
+        .input-group .btn {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .input-group .btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estilo para la información del clima */
+        #weather-info {
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            margin-top: 30px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .weather-data {
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+
+        /* Estilo para el mapa */
+        #map {
+            height: 400px;
+            width: 100%;
+            max-width: 800px;
+            margin-top: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Agregar un pequeño efecto al mapa */
+        #map .leaflet-tile {
+            filter: brightness(80%);
+        }
+    </style>
+</head>
+<body>
+    <h1>Consulta del Clima en tu Ciudad</h1>
+
+    <div class="input-group mb-3">
+        <input type="text" id="city" class="form-control" placeholder="Ingresa el nombre de la ciudad" aria-label="Ciudad">
+        <div class="input-group-append">
+            <button class="btn btn-primary" onclick="getWeather()">Obtener Clima</button>
+        </div>
+    </div>
+
+    <div id="weather-info" class="text-center">
+        <!-- Aquí se mostrará la información del clima -->
+    </div>
+
+    <div id="map"></div>
+
+    <!-- Cargar Leaflet -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Cargar Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        let map;
+
+        async function getWeather() {
+            const city = document.getElementById('city').value;
+            const apiKey = 'a9d2d21165fb958ea15d5c903c865ab2';
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=es`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Ciudad no encontrada");
+
+                const data = await response.json();
+                displayWeather(data);
+                showMap(data.coord.lat, data.coord.lon);
+            } catch (error) {
+                document.getElementById('weather-info').innerHTML = `<p style="color: red;">${error.message}</p>`;
+            }
+        }
+
+        function displayWeather(data) {
+            const weatherInfo = `
+                <h2>Clima en ${data.name}, ${data.sys.country}</h2>
+                <div class="weather-data">Temperatura: ${data.main.temp} °C</div>
+                <div class="weather-data">Sensación Térmica: ${data.main.feels_like} °C</div>
+                <div class="weather-data">Humedad: ${data.main.humidity}%</div>
+                <div class="weather-data">Descripción: ${data.weather[0].description}</div>
+                <div class="weather-data">
+                    <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="Icono del clima">
+                </div>
+            `;
+            document.getElementById('weather-info').innerHTML = weatherInfo;
+        }
+
+        function showMap(lat, lon) {
+            if (map) {
+                map.setView([lat, lon], 10);
+            } else {
+                map = L.map('map').setView([lat, lon], 10);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 18,
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+            }
+
+            L.marker([lat, lon]).addTo(map)
+                .bindPopup(`<b>${document.getElementById('city').value}</b>`)
+                .openPopup();
+        }
+    </script>
+    <br>
+    <div>
+        <a href="index.html" class="btn btn-secondary">Regresar</a>
+    </div>
+</body>
+</html>
